@@ -54,8 +54,8 @@ write.csv(dados_sinasc_2, "dados_sinasc_2", row.names = FALSE)
 # Tarefa 4. Verificar em dados_sinasc_2 a frequência das categorias das seguintes variáveis: LOCNASC, ESTCIVMAE, GESTACAO, GRAVIDEZ, PARTO,
 # SEXO, APGAR5, RACACOR, IDANOMAL, ESCMAE2010, RACACORMAE, TPAPRESENT, TPROBSON, PARIDADE, KOTELCHUCK
 
-dados_sinasc_2 = read.csv("dados_sinasc_2", header = TRUE, sep = ',')
 str(dados_sinasc_2)
+dados_sinasc_2 = read.csv("dados_sinasc_2", header = TRUE, sep = ",")
 
 freq_LOCNASC = table(dados_sinasc_2$LOCNASC)
 freq_ESTCIVMAE = table(dados_sinasc_2$ESTCIVMAE)
@@ -86,6 +86,11 @@ dados_sinasc_2$ESTCIVMAE[dados_sinasc_2$ESTCIVMAE == 9] = NA
 dados_sinasc_2$IDANOMAL[dados_sinasc_2$IDANOMAL == 9] = NA
 dados_sinasc_2$ESCMAE2010[dados_sinasc_2$ESCMAE2010 == 9] = NA
 dados_sinasc_2$TPAPRESENT[dados_sinasc_2$TPAPRESENT == 9] = NA
+dados_sinasc_2$IDADEMAE[dados_sinasc_2$IDADEMAE == 99] = NA
+dados_sinasc_2$APGAR5[dados_sinasc_2$APGAR5 == 99] = NA
+dados_sinasc_2$PESO[dados_sinasc_2$PESO == 9999] = NA
+dados_sinasc_2$CONSPRENAT[dados_sinasc_2$CONSPRENAT == 99] = NA
+
 
 table(dados_sinasc_2$KOTELCHUCK, useNA = 'ifany')
 table(dados_sinasc_2$TPROBSON, useNA = 'ifany')
@@ -97,6 +102,10 @@ table(dados_sinasc_2$ESTCIVMAE, useNA = 'ifany')
 table(dados_sinasc_2$IDANOMAL, useNA = 'ifany')
 table(dados_sinasc_2$ESCMAE2010, useNA = 'ifany')
 table(dados_sinasc_2$TPAPRESENT, useNA = 'ifany')
+table(dados_sinasc_2$APGAR5, useNA = 'ifany')
+table(dados_sinasc_2$PESO, useNA = 'ifany')
+table(dados_sinasc_2$CONSPRENAT, useNA = 'ifany')
+
 
 # Tarefa 6. Atribuir legendas para as categorias das variáveis investigadas na etapa 4.
 # Exemplo: dados_sinasc_2$KOTELCHUCK = factor(dados_sinasc_2$KOTELCHUCK, levels = c(1,2,3,4,5), 
@@ -188,7 +197,7 @@ dados_sinasc_2$F_IDADE[dados_sinasc_2$IDADEMAE >= 50] = "50+"
 
 dados_sinasc_2$F_APGAR5 = NA
 dados_sinasc_2$F_APGAR5[dados_sinasc_2$APGAR5 < 7] = "Baixo"
-dados_sinasc_2$F_APGAR5[dados_sinasc_2$APGAR5 >= 7] = "Normal"
+dados_sinasc_2$F_APGAR5[dados_sinasc_2$APGAR5 >= 7] =  "Normal"
 
 dados_sinasc_2$F_PESO = factor(dados_sinasc_2$F_PESO,
                                 levels = c("Baixo peso", "Peso normal", "Macrossomia"))
@@ -199,6 +208,18 @@ dados_sinasc_2$F_IDADE = factor(dados_sinasc_2$F_IDADE,
 dados_sinasc_2$F_APGAR5 = factor(dados_sinasc_2$F_APGAR5,
                                   levels = c("Baixo", "Normal"))
 
+dados_sinasc_2$PERIG = NA
+dados_sinasc_2$PERIG[dados_sinasc_2$CODMUNNASC == dados_sinasc_2$CODMUNRES] = "Não"
+dados_sinasc_2$PERIG[dados_sinasc_2$CODMUNNASC != dados_sinasc_2$CODMUNRES] = "Sim"
+dados_sinasc_2$PERIG = factor(dados_sinasc_2$PERIG,
+                               levels = c("Não", "Sim"))
+
+
+dados_sinasc_2$ESTCIV = NA
+dados_sinasc_2$ESTCIV[dados_sinasc_2$ESTCIVMAE == "Solteira" | dados_sinasc_2$ESTCIVMAE == "Viúva" | dados_sinasc_2$ESTCIVMAE == "Separada judicialmente/divorciada"] = "Sem companheiro"
+dados_sinasc_2$ESTCIV[dados_sinasc_2$ESTCIVMAE == "Casada" | dados_sinasc_2$ESTCIVMAE == "União estável"] = "Com companheiro"
+dados_sinasc_2$ESTCIV = factor(dados_sinasc_2$ESTCIV,
+                                levels = c("Sem companheiro", "Com companheiro"))
 
 # Tarefa 8. Agregar ao banco de dados_sinasc_2 as informações PESO_P10 e PESO_P90 a partir de Tabela_PIG_Brasil.csv
 # a Tabela PIG informa P10 e P90 dos pesos, de acordo com a idade gestacional
@@ -206,8 +227,6 @@ dados_sinasc_2$F_APGAR5 = factor(dados_sinasc_2$F_APGAR5,
 # nova variável apenas para casos de GRAVIDEZ única: dados_sinasc_2$F_PIG: PIG: PESO < PESO_P10, AIG: PESO_P10 <= PESO <= PESO_P90, GIG: PESO > PESO_P90
 # Atenção para casos de NA em SEMAGESTAC, PESO ou SEXO. Lembre-se também que em dados_sinasc_2 SEXO está como fator com as categorias Feminino e Masculino.
 
-# criar nova variável referente ao deslocamento materno para realizar o parto, chamado de peregrinação
-# nova variável: dados_sinasc_2$PERIG: Não: CODMUNNASC igual a CODMUNRES, Sim: CODMUNNASC diferente de CODMUNRES
 
 
 # Tarefa 9. Obter as frequências das categorias das variáveis e medidas descritivas de variáveis e salvar os resultados em novas variáveis.
