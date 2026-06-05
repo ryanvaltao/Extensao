@@ -1024,13 +1024,49 @@ write.csv(SIDRA_GO, "SIDRA_GO.csv", row.names = FALSE)
 # Faça o commit com a mensagem "Script e dados TAREFA 3 - SIDRA"
 
 # Tarefa 2: Acesso aos bancos de dados do SINISA e obtenção da informação
-# Escreva os comandos da Tarefa 2 estando na branch OUTROS# Leia o arquivo agua e esgoto - município - 2015.csv 
-# A partir do arquivo acima gere o banco de dados de nome SINISA_UF com as seguintes variáveis:
-# 1  ANO    
-# 2  NIVEL
-# 3  CODMUNRES
-# 4 POPR_RA
-# 5 POPR_RE
+  # Escreva os comandos da Tarefa 2 estando na branch OUTROS# Leia o arquivo agua e esgoto - município - 2015.csv 
+  # A partir do arquivo acima gere o banco de dados de nome SINISA_UF com as seguintes variáveis:
+  # 1  ANO    
+  # 2  NIVEL
+  # 3  CODMUNRES
+  # 4 POPR_RA
+  # 5 POPR_RE
+  
+#fazendo leitura do arquivo
+
+dados_sinisa = read.csv("agua e esgoto - município - 2015.csv", header = TRUE , sep = ";")
+
+#selecionando so os municipios de goias
+
+dados_sinisa_go = dados_sinisa[substr(dados_sinisa$CODMUNRES, 1, 2) == "52",]
+
+#transformando variaveis em numericas
+dados_sinisa_go$POPR_RA = as.numeric(gsub(",", ".", gsub("\\.", "", dados_sinisa_go$POPR_RA)))
+dados_sinisa_go$POPR_RE = as.numeric(gsub(",", ".", gsub("\\.", "", dados_sinisa_go$POPR_RE)))
+
+#Criando as linhas dos municipios 
+
+sinisa_municipios = data.frame(ANO = as.numeric(dados_sinisa_go$Ano.de.Referência),
+  NIVEL = "Município",
+  CODMUNRES = dados_sinisa_go$CODMUNRES,
+  POPR_RA = dados_sinisa_go$POPR_RA,
+  POPR_RE = dados_sinisa_go$POPR_RE)
+
+#Criando a linha referente ao estado
+
+sinisa_estado = data.frame(ANO = 2015,
+  NIVEL = "UF",
+  CODMUNRES = "52",
+  POPR_RA = sum(sinisa_municipios$POPR_RA, na.rm = TRUE),
+  POPR_RE = sum(sinisa_municipios$POPR_RE, na.rm = TRUE))
+
+#juntando a linha do estado com as linhas dos municipios
+
+SINISA_GO = rbind(sinisa_estado,sinisa_municipios)
+
+#Exportando o banco de dados em formato CSV
+
+write.csv(SINISA_GO,"SINISA_GO.csv",row.names = FALSE)
 
 # Exporte o arquivo em formato CSV
 # Faça o commit com a mensagem "Script e dados TAREFA 3 - SINISA"
