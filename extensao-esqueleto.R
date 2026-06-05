@@ -1087,7 +1087,90 @@ write.csv(SINISA_GO,"SINISA_GO.csv",row.names = FALSE)
 # 6 IDHM_CA_M
 # 7 IDHM_CA_F
 
+#lendo os arquivos - tarefa 3 
+
+codigos_municipios = read.csv("códigos dos municípios - 2010.csv", header = TRUE, sep = ";")
+
+atlas_uf = read.csv("IDHM - 2010 (CENSO) e 2015 (PNAD) - total e por sexo - UF - Atlas Brasil.csv", header = TRUE, sep = ";")
+
+atlas_municipios = read.csv("IDHM - 2010 - municípios - Atlas Brasil.csv", header = TRUE, sep = ";")
+
+#mantendo somente as colunas necessarias 
+
+codigos_municipios = codigos_municipios[, c("município","CODMUNRES")]
+
+atlas_uf = atlas_uf[, c("UF",
+                        "IDHM_2010",
+                        "IDHM_2015",
+                        "IDHM_2010_M",
+                        "IDHM_2010_F")]
+
+atlas_municipios = atlas_municipios[, c("município", "IDHM_2010")]
+
+#filtrando goias
+
+atlas_go = atlas_uf[atlas_uf$UF == "Goiás",]
+
+#criando data frame
+
+ATLAS_GO_estado = data.frame(
+  ANO = 2015, 
+  NIVEL = "UF",
+  CODMUNRES = "52",
+  IDHM_A = atlas_go$IDHM_2015,
+  IDHM_CA = atlas_go$IDHM_2010,
+  IDHM_CA_M = atlas_go$IDHM_2010_M,
+  IDHM_CA_F = atlas_go$IDHM_2010_F
+)
+
+#filtrando os municipios de goias 
+
+codigos_goias = codigos_municipios[substr(codigos_municipios$CODMUNRES, 1, 2) == "52",]
+
+#limpando formatação do banco de dados atlas_municipios
+#devido os municipios terem a abreviação de seus estados ao lado do nome isso dificultaria no processo
+#entao resolvi criar uma variavel onde o (UF) da formatação não apareça ao lado do municipio
+
+atlas_municipios$municipio_limpo = gsub(
+  " \\([A-Z]{2}\\)","", atlas_municipios$município)
+
+#evitando que tenha linhas de municipios repetidos 
+
+atlas_municipios = atlas_municipios[!duplicated(atlas_municipios$municipio_limpo),]
+
+#juntando os municipios com os codigos
+
+atlas_municipios_go = merge(
+  codigos_goias,
+  atlas_municipios,
+  by.x = "município",
+  by.y = "municipio_limpo",
+  all.x = TRUE
+)
+
+#criando banco de dados dos municipios
+
+ATLAS_GO_MUNICIPIOS = data.frame(
+  ANO = 2015,
+  NIVEL = "Município",
+  CODMUNRES = atlas_municipios_go$CODMUNRES,
+  IDHM_A = NA,
+  IDHM_CA = atlas_municipios_go$IDHM_2010,
+  IDHM_CA_M = NA,
+  IDHM_CA_F = NA,
+  stringsAsFactors = FALSE
+)
+
+#juntando os data frames 
+
+ATLAS_GO = rbind(
+  ATLAS_GO_estado,
+  ATLAS_GO_MUNICIPIOS
+)
+
 # Exporte o arquivo em formato CSV# Faça o commit com a mensagem "Script e dados TAREFA 3 - ATLAS"
+
+write.csv(ATLAS_GO,"ATLAS_GO.csv", row.names = FALSE)
 
 #####################################################################################################
 # ETAPA 4: GERAR BANCO DE DADOS FINAL DO ESTADO, BASEADO NAS ANÁLISES DE SINASC, SIM, IBGE, SNIS,...
